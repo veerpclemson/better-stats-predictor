@@ -21,6 +21,13 @@ for file in roster_files:
 
 pbp, games_scores, offense = dfs
 
+"""
+=====================================================
+    Quarterbacks
+=====================================================
+"""
+
+
 passer_df = pbp[pbp['play_type'] == 'pass'][[
     'season','week','game_id','posteam','defteam','passer_player_id',
     'pass_attempt','complete_pass','receiving_yards',
@@ -41,11 +48,21 @@ QBs = (
     .sum()
 )
 
+QBs = QBs[QBs['passing_yards'] != 0]
+
+
+
+"""
+=====================================================
+    Running Backs
+=====================================================
+"""
 
 rusher_df = pbp[pbp['play_type'] == 'run'][[
     'season','week','game_id','posteam','defteam','rusher_player_id',
     'rushing_yards'
 ]].copy()
+
 
 rusher_df = rusher_df.rename(columns={'rusher_player_id': 'player_id'})
 rusher_df.fillna(0, inplace=True)
@@ -60,8 +77,15 @@ RBs = (
     .groupby(['season','week','game_id','posteam','defteam','player_id'], as_index=False)[agg_cols]
     .sum()
 )
+RBs = RBs[RBs['rushing_yards'] != 0]
 
 
+
+"""
+=====================================================
+    Wide Receivers and Tight Ends
+=====================================================
+"""
 receiver_df = pbp[pbp['play_type'] == 'pass'][[
     'season','week','game_id','posteam','defteam','receiver_player_id',
     'reception','receiving_yards'
@@ -80,5 +104,5 @@ WRsAndTEs = (
     .groupby(['season','week','game_id','posteam','defteam','player_id'], as_index=False)[agg_cols]
     .sum()
 )
-
-print(WRsAndTEs.head())
+WRsAndTEs = WRsAndTEs[WRsAndTEs['receiving_yards'] != 0]
+print(QBs.head())

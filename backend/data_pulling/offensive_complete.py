@@ -148,7 +148,11 @@ WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_3'
 WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_5']], on=['game_id', 'posteam'], how='left')
 
 
-
+"""
+=====================================================
+    PPG scored and allowed
+=====================================================
+"""
 
 offense = pd.DataFrame({
     'season': games_scores['season'],
@@ -160,7 +164,7 @@ offense = pd.DataFrame({
     'points_allowed': games_scores['away_score']
 })
 
-# Defensive perspective (swap teams)
+# Defensive perspective
 defense = pd.DataFrame({
     'season': games_scores['season'],
     'week': games_scores['week'],

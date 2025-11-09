@@ -148,16 +148,44 @@ WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_3'
 WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_5']], on=['game_id', 'posteam'], how='left')
 
 
+
+
+offense = pd.DataFrame({
+    'season': games_scores['season'],
+    'week': games_scores['week'],
+    'game_id': games_scores['game_id'],
+    'pos_team': games_scores['home_team'],
+    'def_team': games_scores['away_team'],
+    'points_scored': games_scores['home_score'],
+    'points_allowed': games_scores['away_score']
+})
+
+# Defensive perspective (swap teams)
+defense = pd.DataFrame({
+    'season': games_scores['season'],
+    'week': games_scores['week'],
+    'game_id': games_scores['game_id'],
+    'pos_team': games_scores['away_team'],
+    'def_team': games_scores['home_team'],
+    'points_scored': games_scores['away_score'],
+    'points_allowed': games_scores['home_score']
+})
+
+# Combine into one dataframe
+long_games = pd.concat([offense, defense], ignore_index=True)
+long_games = long_games.sort_values(['pos_team', 'season', 'week'])
+rolling_cols = ['points_scored', 'points_allowed']
+for col in rolling_cols:
+    long_games[f'{col}_rolling_{window_size1}'] = long_games[col].shift(1).rolling(window = window_size1).mean()
+    long_games[f'{col}_rolling_{window_size2}'] = long_games[col].shift(1).rolling(window = window_size2).mean()
+    
+long_games['points_scored_rolling_5'] = long_games['points_scored_rolling_5'].fillna(long_games['points_scored_rolling_3'])
+long_games['points_allowed_rolling_5'] = long_games['points_allowed_rolling_5'].fillna(long_games['points_allowed_rolling_3'])
+long_games.to_csv("../data_pulling/ppg.csv", index=False)
+
+
+
 #QBs.to_csv("../data_pulling/QBs.csv", index=False)
 #WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
-RBs.to_csv("../data_pulling/RBs.csv", index=False)
-
-games_scores = games_scores.sort_values(['season', 'week'])
-rolling_cols = ['home_score', 'away_score']
-for col in rolling_cols:
-    games_scores[f'{col}_rolling_{window_size1}'] = games_scores[col].shift(1).rolling(window = window_size1).mean()
-    games_scores[f'{col}_rolling_{window_size2}'] = games_scores[col].shift(1).rolling(window = window_size2).mean()
-
-games_scores.to_csv("../data_pulling/ppg.csv", index=False)
-
-print(WRsAndTEs.head())
+#RBs.to_csv("../data_pulling/RBs.csv", index=False)
+#print(WRsAndTEs.head())

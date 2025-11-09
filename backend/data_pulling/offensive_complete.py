@@ -154,8 +154,8 @@ offense = pd.DataFrame({
     'season': games_scores['season'],
     'week': games_scores['week'],
     'game_id': games_scores['game_id'],
-    'pos_team': games_scores['home_team'],
-    'def_team': games_scores['away_team'],
+    'posteam': games_scores['home_team'],
+    'defteam': games_scores['away_team'],
     'points_scored': games_scores['home_score'],
     'points_allowed': games_scores['away_score']
 })
@@ -165,15 +165,15 @@ defense = pd.DataFrame({
     'season': games_scores['season'],
     'week': games_scores['week'],
     'game_id': games_scores['game_id'],
-    'pos_team': games_scores['away_team'],
-    'def_team': games_scores['home_team'],
+    'posteam': games_scores['away_team'],
+    'defteam': games_scores['home_team'],
     'points_scored': games_scores['away_score'],
     'points_allowed': games_scores['home_score']
 })
 
 # Combine into one dataframe
 long_games = pd.concat([offense, defense], ignore_index=True)
-long_games = long_games.sort_values(['pos_team', 'season', 'week'])
+long_games = long_games.sort_values(['posteam', 'season', 'week'])
 rolling_cols = ['points_scored', 'points_allowed']
 for col in rolling_cols:
     long_games[f'{col}_rolling_{window_size1}'] = long_games[col].shift(1).rolling(window = window_size1).mean()
@@ -183,9 +183,15 @@ long_games['points_scored_rolling_5'] = long_games['points_scored_rolling_5'].fi
 long_games['points_allowed_rolling_5'] = long_games['points_allowed_rolling_5'].fillna(long_games['points_allowed_rolling_3'])
 long_games.to_csv("../data_pulling/ppg.csv", index=False)
 
+cols = ['points_scored_rolling_3', 'points_scored_rolling_5', 'points_allowed_rolling_3', 'points_allowed_rolling_5']
+
+for col in cols:
+    QBs = QBs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
+    RBs = RBs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
+    WRsAndTEs = WRsAndTEs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
 
 
-#QBs.to_csv("../data_pulling/QBs.csv", index=False)
-#WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
-#RBs.to_csv("../data_pulling/RBs.csv", index=False)
+QBs.to_csv("../data_pulling/QBs.csv", index=False)
+WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
+RBs.to_csv("../data_pulling/RBs.csv", index=False)
 #print(WRsAndTEs.head())

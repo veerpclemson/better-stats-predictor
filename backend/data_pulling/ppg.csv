@@ -1,4 +1,4 @@
-season,week,game_id,pos_team,def_team,points_scored,points_allowed,points_scored_rolling_3,points_scored_rolling_5,points_allowed_rolling_3,points_allowed_rolling_5
+season,week,game_id,posteam,defteam,points_scored,points_allowed,points_scored_rolling_3,points_scored_rolling_5,points_allowed_rolling_3,points_allowed_rolling_5
 2021,1,2021_01_ARI_TEN,ARI,TEN,38.0,13.0,,,,
 2021,2,2021_02_MIN_ARI,ARI,MIN,34.0,33.0,,,,
 2021,3,2021_03_ARI_JAX,ARI,JAX,31.0,19.0,,,,

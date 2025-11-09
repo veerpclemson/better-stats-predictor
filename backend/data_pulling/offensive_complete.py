@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import numpy as np
 from dotenv import load_dotenv
 import os
 
@@ -15,12 +16,12 @@ roster_files = [
 dfs = []
 
 for file in roster_files:
-    print(f"reading file:{file}")
     df = pd.read_csv(file)
     dfs.append(df)
 
 pbp, games_scores, offense = dfs
-
+window_size1 = 3
+window_size2 = 5
 """
 =====================================================
     Quarterbacks
@@ -50,7 +51,20 @@ QBs = (
 
 QBs = QBs[QBs['passing_yards'] != 0]
 
+rolling_cols = ['pass_attempt', 'complete_pass', 'passing_yards']
 
+
+QBs = QBs.sort_values(['player_id', 'season', 'week'])
+
+for col in rolling_cols:
+    QBs[f'{col}_rolling_{window_size1}'] = QBs[col].shift(1).rolling(window = window_size1).mean()
+    QBs[f'{col}_rolling_{window_size2}'] = QBs[col].shift(1).rolling(window = window_size2).mean()
+
+QBs['pass_attempt_rolling_5'] = QBs['pass_attempt_rolling_5'].fillna(QBs['pass_attempt_rolling_3'])
+
+QBs['complete_pass_rolling_5'] = QBs['complete_pass_rolling_5'].fillna(QBs['complete_pass_rolling_3'])
+
+QBs['passing_yards_rolling_5'] = QBs['passing_yards_rolling_5'].fillna(QBs['passing_yards_rolling_3'])
 
 """
 =====================================================
@@ -66,10 +80,12 @@ rusher_df = pbp[pbp['play_type'] == 'run'][[
 
 rusher_df = rusher_df.rename(columns={'rusher_player_id': 'player_id'})
 rusher_df.fillna(0, inplace=True)
+rusher_df['rush_attempts'] = 1
 
 rusher_df = rusher_df.dropna(subset=['player_id'])
 agg_cols = [
-    'rushing_yards'
+    'rushing_yards',
+    'rush_attempts'
 ]
 
 RBs = (
@@ -79,7 +95,16 @@ RBs = (
 )
 RBs = RBs[RBs['rushing_yards'] != 0]
 
+RBs = RBs.sort_values(['player_id', 'season', 'week'])
+rolling_cols = ['rushing_yards', 'rush_attempts']
+for col in rolling_cols:
+    RBs[f'{col}_rolling_{window_size1}'] = RBs[col].shift(1).rolling(window = window_size1).mean()
+    RBs[f'{col}_rolling_{window_size2}'] = RBs[col].shift(1).rolling(window = window_size2).mean()
 
+
+RBs['rushing_yards_rolling_5'] = RBs['rushing_yards_rolling_5'].fillna(RBs['rushing_yards_rolling_3'])
+
+RBs['rush_attempts_rolling_5'] = RBs['rush_attempts_rolling_5'].fillna(RBs['rush_attempts_rolling_3'])
 
 """
 =====================================================
@@ -105,4 +130,34 @@ WRsAndTEs = (
     .sum()
 )
 WRsAndTEs = WRsAndTEs[WRsAndTEs['receiving_yards'] != 0]
-print(QBs.head())
+WRsAndTEs = WRsAndTEs.sort_values(['player_id', 'season', 'week'])
+rolling_cols = ['reception', 'receiving_yards']
+for col in rolling_cols:
+    WRsAndTEs[f'{col}_rolling_{window_size1}'] = WRsAndTEs[col].shift(1).rolling(window = window_size1).mean()
+    WRsAndTEs[f'{col}_rolling_{window_size2}'] = WRsAndTEs[col].shift(1).rolling(window = window_size2).mean()
+    
+WRsAndTEs['receiving_yards_rolling_3'] = WRsAndTEs['receiving_yards_rolling_3'].fillna(WRsAndTEs['receiving_yards'])
+WRsAndTEs['receiving_yards_rolling_5'] = WRsAndTEs['receiving_yards_rolling_5'].fillna(WRsAndTEs['receiving_yards_rolling_3'])
+
+WRsAndTEs['reception_rolling_5'] = WRsAndTEs['reception_rolling_5'].fillna(WRsAndTEs['reception_rolling_3'])
+
+
+WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'complete_pass_rolling_3']], on=['game_id', 'posteam'], how='left')
+WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'complete_pass_rolling_5']], on=['game_id', 'posteam'], how='left')
+WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_3']], on=['game_id', 'posteam'], how='left')
+WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_5']], on=['game_id', 'posteam'], how='left')
+
+
+#QBs.to_csv("../data_pulling/QBs.csv", index=False)
+#WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
+RBs.to_csv("../data_pulling/RBs.csv", index=False)
+
+games_scores = games_scores.sort_values(['season', 'week'])
+rolling_cols = ['home_score', 'away_score']
+for col in rolling_cols:
+    games_scores[f'{col}_rolling_{window_size1}'] = games_scores[col].shift(1).rolling(window = window_size1).mean()
+    games_scores[f'{col}_rolling_{window_size2}'] = games_scores[col].shift(1).rolling(window = window_size2).mean()
+
+games_scores.to_csv("../data_pulling/ppg.csv", index=False)
+
+print(WRsAndTEs.head())

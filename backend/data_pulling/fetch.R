@@ -45,9 +45,11 @@ games <- fast_scraper_schedules(SEASONS)
 # select relevant columns for model context
 games_context <- games %>%
   select(
+    season, week,
     game_id,
     home_team, away_team,
     home_score, away_score,
+    
   )
    # optional: ensure date format
 

@@ -19,7 +19,7 @@ for file in roster_files:
     df = pd.read_csv(file)
     dfs.append(df)
 
-pbp, games_scores, offense = dfs
+pbp, games_scores, players = dfs
 window_size1 = 3
 window_size2 = 5
 """
@@ -142,10 +142,7 @@ WRsAndTEs['receiving_yards_rolling_5'] = WRsAndTEs['receiving_yards_rolling_5'].
 WRsAndTEs['reception_rolling_5'] = WRsAndTEs['reception_rolling_5'].fillna(WRsAndTEs['reception_rolling_3'])
 
 
-WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'complete_pass_rolling_3']], on=['game_id', 'posteam'], how='left')
-WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'complete_pass_rolling_5']], on=['game_id', 'posteam'], how='left')
-WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_3']], on=['game_id', 'posteam'], how='left')
-WRsAndTEs = WRsAndTEs.merge(QBs[['game_id', 'posteam', 'passing_yards_rolling_5']], on=['game_id', 'posteam'], how='left')
+
 
 
 """
@@ -193,6 +190,29 @@ for col in cols:
     QBs = QBs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
     RBs = RBs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
     WRsAndTEs = WRsAndTEs.merge(long_games[['game_id', 'posteam', col]], on=['game_id', 'posteam'], how='left')
+
+players = players.rename(columns={'gsis_id': 'player_id'})
+
+players = players[['player_id', 'full_name']]
+
+QBs = QBs.merge(
+    players,
+    how='left',
+    on=['player_id']
+)
+RBs = RBs.merge(
+    players,
+    how='left',
+    on=['player_id']
+)
+WRsAndTEs = WRsAndTEs.merge(
+    players,
+    how='left',
+    on=['player_id']
+)
+QBs = QBs.drop_duplicates()
+RBs = RBs.drop_duplicates()
+WRsAndTEs = WRsAndTEs.drop_duplicates()
 
 
 QBs.to_csv("../data_pulling/QBs.csv", index=False)

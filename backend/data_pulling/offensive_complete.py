@@ -214,8 +214,15 @@ QBs = QBs.drop_duplicates()
 RBs = RBs.drop_duplicates()
 WRsAndTEs = WRsAndTEs.drop_duplicates()
 
+PassYPG = QBs[['game_id', 'complete_pass_rolling_3', 'complete_pass_rolling_5', 'passing_yards_rolling_3', 'passing_yards_rolling_5']]
 
-QBs.to_csv("../data_pulling/QBs.csv", index=False)
+WRsAndTEs = WRsAndTEs.merge(
+    PassYPG,
+    how='left',
+    on=['game_id']
+)
+WRsAndTEs = WRsAndTEs.drop_duplicates(subset=['game_id', 'player_id'])
+#QBs.to_csv("../data_pulling/QBs.csv", index=False)
 WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
-RBs.to_csv("../data_pulling/RBs.csv", index=False)
+#RBs.to_csv("../data_pulling/RBs.csv", index=False)
 #print(WRsAndTEs.head())

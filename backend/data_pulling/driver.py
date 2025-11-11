@@ -8,5 +8,6 @@ import subprocess
 subprocess.run(["Rscript", "fetch.R"])
 subprocess.run(["python", "offensive_complete.py"])
 subprocess.run(["python", "defensive_complete.py"])
+subprocess.run(["python", "combine.py"])
 
 print("Ran all files")

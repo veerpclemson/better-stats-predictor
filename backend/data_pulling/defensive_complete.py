@@ -80,5 +80,5 @@ final = final.merge(QBs, on=['season', 'week','game_id', 'defteam'], how='left')
 final = final.merge(RBs, on=['season', 'week','game_id', 'defteam'], how='left')
 
 final.to_csv("../data_pulling/all_defense.csv", index=False)
-print(final.head(10))
+print("ran defense data")
 

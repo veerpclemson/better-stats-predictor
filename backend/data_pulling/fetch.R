@@ -107,4 +107,4 @@ cat("Fetching play-by-play data for seasons:", SEASONS, "\n")
 pbp <- load_pbp(SEASONS)
 
 
-cat("Done!\n")
+cat("ran fetcher!\n")

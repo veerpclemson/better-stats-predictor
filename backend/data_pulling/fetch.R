@@ -84,11 +84,11 @@ pbp_def <- pbp_pass %>%
     
     zone_coverage = 1 - man_coverage
   ) %>%
-  select(season, week, defteam, blitz, pressure, man_coverage, zone_coverage)
+  select(season, week, game_id, defteam, blitz, pressure, man_coverage, zone_coverage)
 
 # Aggregate per defense/week/season
 def_tendencies <- pbp_def %>%
-  group_by(season, week, defteam) %>%
+  group_by(season, week, game_id, defteam) %>%
   summarise(
     total_pass_plays = n(),
     blitz_rate = sum(blitz, na.rm = TRUE)/n(),

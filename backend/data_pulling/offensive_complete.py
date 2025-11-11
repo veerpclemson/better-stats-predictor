@@ -222,7 +222,8 @@ WRsAndTEs = WRsAndTEs.merge(
     on=['game_id']
 )
 WRsAndTEs = WRsAndTEs.drop_duplicates(subset=['game_id', 'player_id'])
-#QBs.to_csv("../data_pulling/QBs.csv", index=False)
+
+QBs.to_csv("../data_pulling/QBs.csv", index=False)
 WRsAndTEs.to_csv("../data_pulling/WRsAndTEs.csv", index=False)
-#RBs.to_csv("../data_pulling/RBs.csv", index=False)
+RBs.to_csv("../data_pulling/RBs.csv", index=False)
 #print(WRsAndTEs.head())
